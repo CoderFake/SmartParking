@@ -53,6 +53,32 @@ sys.exit(0)
 END
 }
 
+function minio_ready(){
+python << END
+import sys
+from minio import Minio
+import os
+
+try:
+    minio_host = os.environ.get('MINIO_HOST', 'minio')
+    minio_port = os.environ.get('MINIO_PORT', '9000')
+    minio_access_key = os.environ.get('MINIO_ACCESS_KEY', 'minioadmin')
+    minio_secret_key = os.environ.get('MINIO_SECRET_KEY', 'minioadmin')
+
+    client = Minio(
+        f"{minio_host}:{minio_port}",
+        access_key=minio_access_key,
+        secret_key=minio_secret_key,
+        secure=False
+    )
+
+    buckets = client.list_buckets()
+except Exception:
+    sys.exit(-1)
+sys.exit(0)
+END
+}
+
 until postgres_ready; do
   >&2 echo "PostgreSQL đang khởi động - đợi trong 1 giây..."
   sleep 1
@@ -65,16 +91,19 @@ until mqtt_ready; do
 done
 >&2 echo "MQTT đã sẵn sàng!"
 
-# Thực hiện migrations
+until minio_ready; do
+  >&2 echo "Minio đang khởi động - đợi trong 1 giây..."
+  sleep 1
+done
+>&2 echo "Minio đã sẵn sàng!"
+
+
 cd /app/ParkingSystem
 python manage.py makemigrations
 python manage.py migrate --noinput
 
-# Tạo superuser và site
 python create_superuser_and_site.py
 
-# Thu thập static files
 python manage.py collectstatic --noinput
 
-# Chạy server
 exec gunicorn ParkingSystem.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2
