@@ -1,0 +1,129 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Lịch sử đỗ xe - Hệ thống đỗ xe thông minh{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-0"><i class="fas fa-history me-2"></i>Lịch sử đỗ xe</h2>
+            <p class="text-muted">Xem lịch sử đỗ xe của bạn.</p>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Lọc dữ liệu</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{% url 'parking:parking_history' %}">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="all" {% if status_filter == 'all' or not status_filter %}selected{% endif %}>Tất cả</option>
+                            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Đang đỗ</option>
+                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Đã hoàn thành</option>
+                            <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Đã hủy</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="vehicle" class="form-label">Phương tiện</label>
+                        <select class="form-select" id="vehicle" name="vehicle">
+                            <option value="all" {% if vehicle_filter == 'all' or not vehicle_filter %}selected{% endif %}>Tất cả</option>
+                            {% for vehicle in vehicles %}
+                            <option value="{{ vehicle.id }}" {% if vehicle_filter == vehicle.id|stringformat:"i" %}selected{% endif %}>{{ vehicle.license_plate }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date_from" class="form-label">Từ ngày</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from|default:'' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date_to" class="form-label">Đến ngày</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to|default:'' }}">
+                    </div>
+                </div>
+                <div class="mt-3 text-end">
+                    <a href="{% url 'parking:parking_history' %}" class="btn btn-secondary me-2">
+                        <i class="fas fa-redo me-1"></i>Đặt lại
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Tìm kiếm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if sessions %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Biển số xe</th>
+                            <th>Loại xe</th>
+                            <th>Bãi đỗ xe</th>
+                            <th>Thời gian vào</th>
+                            <th>Thời gian ra</th>
+                            <th>Trạng thái</th>
+                            <th>Chi phí</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in sessions %}
+                        <tr>
+                            <td>{{ session.vehicle.license_plate }}</td>
+                            <td>
+                                {% if session.vehicle.vehicle_type == 'car' %}
+                                <span class="badge bg-primary">Ô tô</span>
+                                {% else %}
+                                <span class="badge bg-info">Xe máy</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ session.parking_lot.name }}</td>
+                            <td>{{ session.entry_time|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if session.exit_time %}
+                                {{ session.exit_time|date:"d/m/Y H:i" }}
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if session.status == 'active' %}
+                                <span class="badge bg-success">Đang đỗ</span>
+                                {% elif session.status == 'completed' %}
+                                <span class="badge bg-secondary">Đã hoàn thành</span>
+                                {% else %}
+                                <span class="badge bg-danger">Đã hủy</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ session.total_cost|intcomma }} VNĐ</td>
+                            <td>
+                                <a href="{% url 'parking:parking_detail' session.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Không tìm thấy dữ liệu phù hợp với điều kiện lọc.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

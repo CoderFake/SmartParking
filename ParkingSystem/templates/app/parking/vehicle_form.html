@@ -1,0 +1,74 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}{% if vehicle %}Cập nhật phương tiện{% else %}Thêm phương tiện mới{% endif %} - Hệ thống đỗ xe thông minh{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0">
+                        <i class="fas {% if vehicle %}fa-edit{% else %}fa-plus{% endif %} me-2"></i>
+                        {% if vehicle %}Cập nhật phương tiện{% else %}Thêm phương tiện mới{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="{% if vehicle %}{% url 'parking:vehicle_update' vehicle.id %}{% else %}{% url 'parking:vehicle_add' %}{% endif %}">
+                        {% csrf_token %}
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="license_plate" class="form-label">Biển số xe <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="license_plate" name="license_plate" value="{{ vehicle.license_plate|default:'' }}" required>
+                                <small class="form-text text-muted">Nhập chính xác biển số xe của bạn.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="vehicle_type" class="form-label">Loại phương tiện <span class="text-danger">*</span></label>
+                                <select class="form-select" id="vehicle_type" name="vehicle_type" required>
+                                    <option value="" {% if not vehicle %}selected{% endif %}>Chọn loại phương tiện</option>
+                                    <option value="car" {% if vehicle.vehicle_type == 'car' %}selected{% endif %}>Ô tô</option>
+                                    <option value="motorbike" {% if vehicle.vehicle_type == 'motorbike' %}selected{% endif %}>Xe máy</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="make" class="form-label">Hãng xe</label>
+                                <input type="text" class="form-control" id="make" name="make" value="{{ vehicle.make|default:'' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="model" class="form-label">Mẫu xe</label>
+                                <input type="text" class="form-control" id="model" name="model" value="{{ vehicle.model|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="color" class="form-label">Màu sắc</label>
+                                <input type="text" class="form-control" id="color" name="color" value="{{ vehicle.color|default:'' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="rfid_tag" class="form-label">Mã RFID (nếu có)</label>
+                                <input type="text" class="form-control" id="rfid_tag" name="rfid_tag" value="{{ vehicle.rfid_tag|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'parking:vehicle_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if vehicle %}Cập nhật{% else %}Thêm mới{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
