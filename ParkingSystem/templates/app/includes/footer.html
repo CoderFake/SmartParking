@@ -1,0 +1,45 @@
+<footer class="bg-dark text-white mt-5 py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <h5>Smart Parking</h5>
+                <p>Hệ thống đỗ xe thông minh, giải pháp quản lý bãi đỗ xe hiện đại, an toàn và tiện lợi.</p>
+                <div class="social-icons">
+                    <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h5>Liên kết</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'home' %}" class="text-white">Trang chủ</a></li>
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'account:profile' %}" class="text-white">Hồ sơ</a></li>
+                    <li><a href="{% url 'parking:vehicle_list' %}" class="text-white">Phương tiện</a></li>
+                    <li><a href="{% url 'parking:parking_history' %}" class="text-white">Lịch sử đỗ xe</a></li>
+                    <li><a href="{% url 'payment:history' %}" class="text-white">Lịch sử thanh toán</a></li>
+                    {% else %}
+                    <li><a href="{% url 'account:login' %}" class="text-white">Đăng nhập</a></li>
+                    <li><a href="{% url 'account:signup' %}" class="text-white">Đăng ký</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h5>Liên hệ</h5>
+                <address>
+                    <p><i class="fas fa-map-marker-alt me-2"></i> 123 Đường ABC, Quận XYZ, Hà Nội</p>
+                    <p><i class="fas fa-phone me-2"></i> (024) 1234 5678</p>
+                    <p><i class="fas fa-envelope me-2"></i> info@smartparking.com</p>
+                </address>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <p class="mb-0">&copy; {% now "Y" %} Smart Parking. Bản quyền thuộc về Smart Parking.</p>
+            </div>
+        </div>
+    </div>
+</footer>
