@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: parking_app
+    restart: always
+    volumes:
+      - ./ParkingSystem:/app/ParkingSystem
+      - static_volume:/app/ParkingSystem/staticfiles
+      - media_volume:/app/ParkingSystem/media
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - mqtt
+    ports:
+      - "${WEB_EXPORT:-9998}:8000"
+    networks:
+      - parking_network
+
+  db:
+    image: postgres:16
+    container_name: parking_db
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/intdb-entrypoint.sh:/docker-entrypoint-initdb.d/init-db.sh
+    env_file:
+      - ./.env
+    ports:
+      - "${DB_EXPORT:-9999}:5432"
+    networks:
+      - parking_network
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: parking_mqtt
+    restart: always
+    volumes:
+      - ./mqtt/config:/mosquitto/config
+      - mqtt_data:/mosquitto/data
+      - mqtt_log:/mosquitto/log
+    ports:
+      - "${MQTT_EXPORT:-1883}:1883"
+      - "9001:9001"
+    networks:
+      - parking_network
+
+networks:
+  parking_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  mqtt_data:
+  mqtt_log:
