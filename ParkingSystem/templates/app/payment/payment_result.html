@@ -1,0 +1,177 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Kết quả thanh toán - Hệ thống đỗ xe thông minh{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i>Thanh toán thành công</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <span class="display-1 text-success">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                        </div>
+                        <h5>Cảm ơn bạn! Giao dịch của bạn đã được xử lý thành công</h5>
+                        <p class="text-muted">Thông tin chi tiết về giao dịch đã được gửi đến email của bạn.</p>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title border-bottom pb-2 mb-3">Chi tiết thanh toán</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Mã thanh toán:</dt>
+                                        <dd class="col-sm-7">{{ payment.payment_code }}</dd>
+
+                                        <dt class="col-sm-5">Mã đơn hàng:</dt>
+                                        <dd class="col-sm-7">{{ order.order_code }}</dd>
+
+                                        <dt class="col-sm-5">Loại đơn hàng:</dt>
+                                        <dd class="col-sm-7">
+                                            {% if order.order_type == 'ticket' %}
+                                            Mua vé đỗ xe
+                                            {% else %}
+                                            Thanh toán phiên đỗ xe
+                                            {% endif %}
+                                        </dd>
+
+                                        <dt class="col-sm-5">Phương thức:</dt>
+                                        <dd class="col-sm-7">
+                                            {% if payment.payment_method == 'vnpay' %}
+                                            <span class="badge bg-primary">VNPay</span>
+                                            {% elif payment.payment_method == 'cash' %}
+                                            <span class="badge bg-success">Tiền mặt</span>
+                                            {% else %}
+                                            <span class="badge bg-info">Chuyển khoản</span>
+                                            {% endif %}
+                                        </dd>
+                                    </dl>
+                                </div>
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Ngày thanh toán:</dt>
+                                        <dd class="col-sm-7">{{ payment.payment_date|date:"d/m/Y H:i" }}</dd>
+
+                                        <dt class="col-sm-5">Trạng thái:</dt>
+                                        <dd class="col-sm-7">
+                                            <span class="badge bg-success">Đã thanh toán</span>
+                                        </dd>
+
+                                        <dt class="col-sm-5">Tổng tiền:</dt>
+                                        <dd class="col-sm-7">
+                                            <span class="fw-bold text-success fs-5">{{ payment.amount|intcomma }} VNĐ</span>
+                                        </dd>
+
+                                        {% if payment.payment_reference %}
+                                        <dt class="col-sm-5">Mã giao dịch:</dt>
+                                        <dd class="col-sm-7">{{ payment.payment_reference }}</dd>
+                                        {% endif %}
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title border-bottom pb-2 mb-3">Thông tin chi tiết</h6>
+                            {% if order.order_type == 'ticket' and order.parking_ticket %}
+                            <div class="mb-3">
+                                <h6>Chi tiết vé đỗ xe:</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Biển số xe:</span>
+                                        <span>{{ order.parking_ticket.vehicle.license_plate }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Loại vé:</span>
+                                        <span>{{ order.parking_ticket.ticket_type.name }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Thời hạn:</span>
+                                        <span>{{ order.parking_ticket.ticket_type.duration_hours }} giờ</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Ngày bắt đầu:</span>
+                                        <span>{{ order.parking_ticket.start_date|date:"d/m/Y H:i" }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Ngày kết thúc:</span>
+                                        <span>{{ order.parking_ticket.end_date|date:"d/m/Y H:i" }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            {% elif order.order_type == 'session' and order.parking_session %}
+                            <div class="mb-3">
+                                <h6>Chi tiết phiên đỗ xe:</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Biển số xe:</span>
+                                        <span>{{ order.parking_session.vehicle.license_plate }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Bãi đỗ xe:</span>
+                                        <span>{{ order.parking_session.parking_lot.name }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Thời gian vào:</span>
+                                        <span>{{ order.parking_session.entry_time|date:"d/m/Y H:i" }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Thời gian ra:</span>
+                                        <span>
+                                            {% if order.parking_session.exit_time %}
+                                            {{ order.parking_session.exit_time|date:"d/m/Y H:i" }}
+                                            {% else %}
+                                            <span class="text-muted">Chưa kết thúc</span>
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Tổng thời gian đỗ:</span>
+                                        <span>
+                                            {% if order.parking_session.duration %}
+                                            {{ order.parking_session.duration }}
+                                            {% else %}
+                                            <span class="text-muted">Chưa tính toán</span>
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% if order.order_type == 'ticket' %}
+                        Vé đỗ xe của bạn đã được kích hoạt thành công. Vui lòng kiểm tra email để nhận thông tin chi tiết về vé.
+                        {% else %}
+                        Thanh toán phiên đỗ xe đã hoàn tất. Vui lòng kiểm tra email để nhận biên lai thanh toán.
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-4">
+                        <a href="{% url 'payment:history' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-history me-2"></i>Xem lịch sử thanh toán
+                        </a>
+                        <a href="{% url 'home' %}" class="btn btn-secondary">
+                            <i class="fas fa-home me-2"></i>Về trang chủ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

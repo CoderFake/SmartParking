@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biên lai vé đỗ xe - Hệ thống đỗ xe thông minh</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #5bc0de;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #888;
+            font-size: 12px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #5bc0de;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .ticket-icon {
+            font-size: 48px;
+            color: #5bc0de;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-code img {
+            max-width: 200px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Biên lai vé đỗ xe</h1>
+        </div>
+        <div class="content">
+            <div class="ticket-icon">🎫</div>
+
+            <p>Kính gửi <strong>{{ ticket.user.username }}</strong>,</p>
+
+            <p>Cảm ơn bạn đã mua vé đỗ xe từ Hệ thống đỗ xe thông minh. Đây là biên lai vé đỗ xe của bạn với các thông tin chi tiết như sau:</p>
+
+            <table>
+                <tr>
+                    <th>Mã vé</th>
+                    <td>#{{ ticket.id }}</td>
+                </tr>
+                <tr>
+                    <th>Loại vé</th>
+                    <td>{{ ticket.ticket_type.name }}</td>
+                </tr>
+                <tr>
+                    <th>Thời hạn</th>
+                    <td>{{ ticket.ticket_type.duration_hours }} giờ</td>
+                </tr>
+                <tr>
+                    <th>Giá vé</th>
+                    <td>{{ ticket.ticket_type.price }} VNĐ</td>
+                </tr>
+                <tr>
+                    <th>Ngày bắt đầu</th>
+                    <td>{{ ticket.start_date|date:"d/m/Y H:i:s" }}</td>
+                </tr>
+                <tr>
+                    <th>Ngày kết thúc</th>
+                    <td>{{ ticket.end_date|date:"d/m/Y H:i:s" }}</td>
+                </tr>
+                <tr>
+                    <th>Trạng thái</th>
+                    <td>{{ ticket.get_status_display }}</td>
+                </tr>
+            </table>
+
+            <h3>Thông tin phương tiện</h3>
+            <table>
+                <tr>
+                    <th>Biển số xe</th>
+                    <td>{{ ticket.vehicle.license_plate }}</td>
+                </tr>
+                <tr>
+                    <th>Loại xe</th>
+                    <td>{{ ticket.vehicle.get_vehicle_type_display }}</td>
+                </tr>
+                {% if ticket.vehicle.make %}
+                <tr>
+                    <th>Hãng xe</th>
+                    <td>{{ ticket.vehicle.make }}</td>
+                </tr>
+                {% endif %}
+                {% if ticket.vehicle.model %}
+                <tr>
+                    <th>Mẫu xe</th>
+                    <td>{{ ticket.vehicle.model }}</td>
+                </tr>
+                {% endif %}
+                {% if ticket.vehicle.color %}
+                <tr>
+                    <th>Màu sắc</th>
+                    <td>{{ ticket.vehicle.color }}</td>
+                </tr>
+                {% endif %}
+            </table>
+
+            <div class="qr-code">
+                <p><strong>Mã QR vé đỗ xe</strong></p>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TICKET_{{ ticket.id }}" alt="Mã QR vé đỗ xe">
+                <p><small>Quét mã QR này để xác nhận vé đỗ xe tại bãi đỗ</small></p>
+            </div>
+
+            <p><strong>Hướng dẫn sử dụng:</strong></p>
+            <ol>
+                <li>Đến bãi đỗ xe và quét mã QR tại cổng vào hoặc kiốt.</li>
+                <li>Đỗ xe tại vị trí được chỉ định hoặc bất kỳ vị trí trống nào phù hợp với loại xe của bạn.</li>
+                <li>Khi rời đi, quét lại mã QR tại cổng ra.</li>
+                <li>Nếu thời gian đỗ xe vượt quá thời hạn vé, phí phát sinh sẽ được tính thêm.</li>
+            </ol>
+
+            <p>Để xem thông tin chi tiết về vé đỗ xe và lịch sử đỗ xe, vui lòng nhấp vào nút bên dưới:</p>
+
+            <div style="text-align: center;">
+                <a href="{{ site_url }}{% url 'parking:parking_history' %}" class="btn">Xem lịch sử đỗ xe</a>
+            </div>
+
+            <p>Nếu bạn có bất kỳ câu hỏi hoặc cần trợ giúp, vui lòng liên hệ với chúng tôi qua email <a href="mailto:support@smartparking.com">support@smartparking.com</a> hoặc gọi điện thoại đến số (024) 1234 5678.</p>
+
+            <p>Trân trọng,<br>
+            Đội ngũ Hệ thống đỗ xe thông minh</p>
+        </div>
+        <div class="footer">
+            <p>© {% now "Y" %} Smart Parking. Bản quyền thuộc về Smart Parking.</p>
+            <p>Địa chỉ: 123 Đường ABC, Quận XYZ, Hà Nội - Điện thoại: (024) 1234 5678</p>
+            <p>Email: <a href="mailto:info@smartparking.com">info@smartparking.com</a> - Website: <a href="https://smartparking.com">smartparking.com</a></p>
+        </div>
+    </div>
+</body>
+</html>

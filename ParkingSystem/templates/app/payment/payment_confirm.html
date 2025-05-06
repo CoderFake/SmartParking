@@ -1,0 +1,187 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Xác nhận thanh toán - Hệ thống đỗ xe thông minh{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i>Xác nhận thanh toán</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-file-invoice-dollar fa-3x text-primary mb-3"></i>
+                        <h5>Vui lòng xác nhận thông tin thanh toán của bạn</h5>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title border-bottom pb-2 mb-3">Chi tiết thanh toán</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Mã thanh toán:</dt>
+                                        <dd class="col-sm-7">{{ payment.payment_code }}</dd>
+
+                                        <dt class="col-sm-5">Loại đơn hàng:</dt>
+                                        <dd class="col-sm-7">
+                                            {% if order.order_type == 'ticket' %}
+                                            Mua vé đỗ xe
+                                            {% else %}
+                                            Thanh toán phiên đỗ xe
+                                            {% endif %}
+                                        </dd>
+
+                                        <dt class="col-sm-5">Phương thức:</dt>
+                                        <dd class="col-sm-7">
+                                            {% if payment.payment_method == 'vnpay' %}
+                                            <span class="badge bg-primary">VNPay</span>
+                                            {% elif payment.payment_method == 'cash' %}
+                                            <span class="badge bg-success">Tiền mặt</span>
+                                            {% else %}
+                                            <span class="badge bg-info">Chuyển khoản</span>
+                                            {% endif %}
+                                        </dd>
+                                    </dl>
+                                </div>
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Ngày tạo:</dt>
+                                        <dd class="col-sm-7">{{ payment.created_at|date:"d/m/Y H:i" }}</dd>
+
+                                        <dt class="col-sm-5">Trạng thái:</dt>
+                                        <dd class="col-sm-7">
+                                            <span class="badge bg-warning">Đang chờ thanh toán</span>
+                                        </dd>
+
+                                        <dt class="col-sm-5">Tổng tiền:</dt>
+                                        <dd class="col-sm-7">
+                                            <span class="fw-bold text-primary fs-5">{{ payment.amount|intcomma }} VNĐ</span>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title border-bottom pb-2 mb-3">Thông tin chi tiết</h6>
+                            {% if order.order_type == 'ticket' and order.parking_ticket %}
+                            <div class="mb-3">
+                                <h6>Chi tiết vé đỗ xe:</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Biển số xe:</span>
+                                        <span>{{ order.parking_ticket.vehicle.license_plate }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Loại vé:</span>
+                                        <span>{{ order.parking_ticket.ticket_type.name }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Thời hạn:</span>
+                                        <span>{{ order.parking_ticket.ticket_type.duration_hours }} giờ</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Ngày bắt đầu:</span>
+                                        <span>{{ order.parking_ticket.start_date|date:"d/m/Y H:i" }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Ngày kết thúc:</span>
+                                        <span>{{ order.parking_ticket.end_date|date:"d/m/Y H:i" }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            {% elif order.order_type == 'session' and order.parking_session %}
+                            <div class="mb-3">
+                                <h6>Chi tiết phiên đỗ xe:</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Biển số xe:</span>
+                                        <span>{{ order.parking_session.vehicle.license_plate }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Bãi đỗ xe:</span>
+                                        <span>{{ order.parking_session.parking_lot.name }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Thời gian vào:</span>
+                                        <span>{{ order.parking_session.entry_time|date:"d/m/Y H:i" }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Thời gian ra:</span>
+                                        <span>
+                                            {% if order.parking_session.exit_time %}
+                                            {{ order.parking_session.exit_time|date:"d/m/Y H:i" }}
+                                            {% else %}
+                                            <span class="text-muted">Chưa kết thúc</span>
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Tổng thời gian đỗ:</span>
+                                        <span>
+                                            {% if order.parking_session.duration %}
+                                            {{ order.parking_session.duration }}
+                                            {% else %}
+                                            <span class="text-muted">Chưa tính toán</span>
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% if payment.payment_method == 'vnpay' %}
+                        Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất giao dịch.
+                        {% elif payment.payment_method == 'bank_transfer' %}
+                        Vui lòng chuyển khoản theo thông tin bên dưới và xác nhận khi đã thanh toán.
+                        <div class="mt-2">
+                            <p><strong>Thông tin chuyển khoản:</strong></p>
+                            <ul>
+                                <li>Số tài khoản: <strong>1234567890</strong></li>
+                                <li>Ngân hàng: <strong>Ngân hàng Thương mại Cổ phần ABC</strong></li>
+                                <li>Chủ tài khoản: <strong>SMART PARKING SYSTEM</strong></li>
+                                <li>Nội dung chuyển khoản: <strong>{{ payment.payment_code }}</strong></li>
+                            </ul>
+                        </div>
+                        {% else %}
+                        Vui lòng thanh toán tiền mặt tại quầy thu ngân của bãi đỗ xe.
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'payment:create' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Quay lại
+                        </a>
+                        {% if payment.payment_method == 'vnpay' %}
+                        <form method="post" action="{% url 'payment:confirm' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>Tiếp tục thanh toán
+                            </button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{% url 'payment:confirm' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check me-2"></i>Xác nhận đã thanh toán
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
