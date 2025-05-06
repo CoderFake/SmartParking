@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from minio import Minio
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def get_minio_client():
     try:
-        minio_host = os.environ.get('MINIO_HOST', 'localhost')
+        minio_host = os.environ.get('MINIO_HOST', 'minio')
         minio_port = os.environ.get('MINIO_PORT', '9000')
         minio_access_key = os.environ.get('MINIO_ACCESS_KEY', 'minioadmin')
         minio_secret_key = os.environ.get('MINIO_SECRET_KEY', 'minioadmin')
@@ -30,9 +31,20 @@ def get_minio_client():
 def ensure_bucket_exists(client, bucket_name):
     try:
         if not client.bucket_exists(bucket_name):
-            # Tạo bucket mới
             client.make_bucket(bucket_name)
-            logger.info(f"Đã tạo bucket {bucket_name}")
+            policy = {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {"AWS": "*"},
+                        "Action": ["s3:GetObject"],
+                        "Resource": [f"arn:aws:s3:::{bucket_name}/*"]
+                    }
+                ]
+            }
+            client.set_bucket_policy(bucket_name, json.dumps(policy))
+            logger.info(f"Đã tạo bucket {bucket_name} và thiết lập chính sách công khai")
         return True
     except S3Error as e:
         logger.error(f"Lỗi khi kiểm tra/tạo bucket {bucket_name}: {str(e)}")
@@ -45,6 +57,7 @@ def upload_file(file, bucket_name, file_name=None):
 
         if not ensure_bucket_exists(client, bucket_name):
             return None
+
         if file_name is None:
             file_extension = os.path.splitext(file.name)[1] if hasattr(file, 'name') else ''
             file_name = f"{uuid.uuid4()}{file_extension}"
@@ -63,10 +76,18 @@ def upload_file(file, bucket_name, file_name=None):
         else:
             client.fput_object(bucket_name, file_name, file)
 
-        base_url = f"http://{os.environ.get('MINIO_HOST')}:{os.environ.get('MINIO_EXPORT', '9997')}"
+        minio_host = os.environ.get('MINIO_HOST', 'minio')
+        minio_export = os.environ.get('MINIO_EXPORT', '9997')
+        base_url = f"http://{minio_host}:{minio_export}"
+
+        if os.environ.get("ENV") != "dev":
+            from django.contrib.sites.models import Site
+            site = Site.objects.get(id=settings.SITE_ID)
+            base_url = f"http://{site.domain}"
+
         url = f"{base_url}/{bucket_name}/{file_name}"
 
-        logger.info(f"Đã tải lên file {file_name} vào bucket {bucket_name}")
+        logger.info(f"Đã tải lên file {file_name} vào bucket {bucket_name}, URL: {url}")
         return url
 
     except Exception as e:
@@ -121,7 +142,26 @@ def list_files(bucket_name, prefix=None):
             return None
 
         objects = client.list_objects(bucket_name, prefix=prefix, recursive=True)
-        result = [obj.object_name for obj in objects]
+        result = []
+
+        for obj in objects:
+            file_info = {
+                'name': obj.object_name,
+                'size': obj.size,
+                'last_modified': obj.last_modified
+            }
+
+            minio_host = os.environ.get('MINIO_HOST', 'minio')
+            minio_export = os.environ.get('MINIO_EXPORT', '9997')
+
+            if os.environ.get("ENV") != "dev":
+                from django.contrib.sites.models import Site
+                site = Site.objects.get(id=settings.SITE_ID)
+                file_info['url'] = f"http://{site.domain}/{bucket_name}/{obj.object_name}"
+            else:
+                file_info['url'] = f"http://{minio_host}:{minio_export}/{bucket_name}/{obj.object_name}"
+
+            result.append(file_info)
 
         return result
 
