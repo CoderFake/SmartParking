@@ -209,7 +209,7 @@ MQTT_CLIENT_ID = os.getenv("MQTT_CLIENT_ID")
 
 
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT'))
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
