@@ -1,0 +1,126 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Trang chủ - Hệ thống đỗ xe thông minh{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-12 mb-4 text-center">
+            <h1>Chào mừng đến với Hệ thống đỗ xe thông minh</h1>
+            <p class="lead">Giải pháp quản lý bãi đỗ xe hiện đại, an toàn và tiện lợi</p>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-car fa-3x mb-3 text-primary"></i>
+                    <h4>Quản lý phương tiện</h4>
+                    <p>Thêm và quản lý phương tiện của bạn một cách dễ dàng. Theo dõi và cập nhật thông tin xe.</p>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'parking:vehicle_list' %}" class="btn btn-primary">Phương tiện của tôi</a>
+                    {% else %}
+                    <a href="{% url 'account:login' %}" class="btn btn-outline-primary">Đăng nhập để tiếp tục</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-ticket-alt fa-3x mb-3 text-success"></i>
+                    <h4>Vé đỗ xe</h4>
+                    <p>Mua vé đỗ xe trực tuyến và tiết kiệm thời gian. Hỗ trợ nhiều loại vé và phương thức thanh toán.</p>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'payment:create' %}" class="btn btn-success">Mua vé ngay</a>
+                    {% else %}
+                    <a href="{% url 'account:login' %}" class="btn btn-outline-success">Đăng nhập để tiếp tục</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-history fa-3x mb-3 text-info"></i>
+                    <h4>Lịch sử đỗ xe</h4>
+                    <p>Xem lịch sử đỗ xe và thanh toán của bạn. Quản lý và theo dõi các phiên đỗ xe.</p>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'parking:parking_history' %}" class="btn btn-info">Xem lịch sử</a>
+                    {% else %}
+                    <a href="{% url 'account:login' %}" class="btn btn-outline-info">Đăng nhập để tiếp tục</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">Giới thiệu về hệ thống</h3>
+                    <p>Hệ thống đỗ xe thông minh là giải pháp quản lý bãi đỗ xe hiện đại, sử dụng công nghệ tiên tiến để mang lại trải nghiệm tốt nhất cho người dùng.</p>
+                    <p>Với hệ thống camera nhận diện biển số xe, cảm biến thông minh và hệ thống thanh toán trực tuyến, chúng tôi giúp việc đỗ xe trở nên dễ dàng và tiết kiệm thời gian.</p>
+                    <ul class="list-group list-group-flush mt-3">
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Nhận diện biển số xe tự động</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Thanh toán trực tuyến an toàn</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Theo dõi phiên đỗ xe theo thời gian thực</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Cảnh báo và thông báo tự động</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">Hướng dẫn sử dụng</h3>
+                    <div class="accordion" id="accordionGuide">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    Đăng ký tài khoản
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionGuide">
+                                <div class="accordion-body">
+                                    Đăng ký tài khoản bằng cách cung cấp email, tên đăng nhập và mật khẩu. Xác nhận email để kích hoạt tài khoản.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Thêm phương tiện
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionGuide">
+                                <div class="accordion-body">
+                                    Thêm thông tin phương tiện với biển số xe, loại xe.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Mua vé đỗ xe
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionGuide">
+                                <div class="accordion-body">
+                                    Mua vé đỗ xe trực tuyến với nhiều loại vé khác nhau: vé ngày, vé tháng hoặc vé đêm tùy theo nhu cầu của bạn.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

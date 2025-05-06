@@ -1,0 +1,163 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Đăng ký - Hệ thống đỗ xe thông minh{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="{% url 'account:signup' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <small class="form-text text-muted">Địa chỉ email sẽ được sử dụng để đăng nhập và xác nhận tài khoản.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Mật khẩu phải có ít nhất 8 ký tự.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Xác nhận mật khẩu</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                            <label class="form-check-label" for="terms">
+                                Tôi đồng ý với <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Điều khoản dịch vụ</a> và <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Chính sách bảo mật</a>
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Đăng ký
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <p class="mb-0">Đã có tài khoản? <a href="{% url 'account:login' %}" class="text-decoration-none">Đăng nhập</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Điều khoản dịch vụ -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Điều khoản dịch vụ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5>1. Điều khoản sử dụng</h5>
+                <p>Bằng việc truy cập và sử dụng dịch vụ của Hệ thống đỗ xe thông minh, bạn đồng ý tuân thủ các điều khoản và điều kiện này. Nếu bạn không đồng ý với bất kỳ phần nào của các điều khoản này, bạn không được phép sử dụng dịch vụ của chúng tôi.</p>
+
+                <h5>2. Đăng ký tài khoản</h5>
+                <p>Khi đăng ký tài khoản, bạn phải cung cấp thông tin chính xác, đầy đủ và cập nhật. Mọi hoạt động diễn ra dưới tài khoản của bạn là trách nhiệm của bạn, bao gồm cả việc giữ bảo mật mật khẩu.</p>
+
+                <h5>3. Quyền và trách nhiệm</h5>
+                <p>Bạn chịu trách nhiệm về mọi thông tin bạn cung cấp và hoạt động bạn thực hiện trên hệ thống. Chúng tôi có quyền từ chối dịch vụ, xóa tài khoản, hoặc sửa đổi nội dung nếu vi phạm điều khoản.</p>
+
+                <h5>4. Thay đổi điều khoản</h5>
+                <p>Chúng tôi có thể sửa đổi các điều khoản này bất cứ lúc nào. Việc bạn tiếp tục sử dụng dịch vụ sau khi có thay đổi đồng nghĩa với việc bạn chấp nhận các điều khoản mới.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chính sách bảo mật -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="privacyModalLabel">Chính sách bảo mật</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5>1. Thu thập thông tin</h5>
+                <p>Chúng tôi thu thập thông tin cá nhân khi bạn đăng ký tài khoản, sử dụng dịch vụ hoặc liên hệ với chúng tôi. Thông tin có thể bao gồm tên, địa chỉ email, số điện thoại, biển số xe và các thông tin liên quan đến phương tiện.</p>
+
+                <h5>2. Sử dụng thông tin</h5>
+                <p>Chúng tôi sử dụng thông tin để cung cấp, duy trì và cải thiện dịch vụ, xử lý thanh toán, gửi thông báo, và bảo vệ quyền lợi của người dùng.</p>
+
+                <h5>3. Bảo mật thông tin</h5>
+                <p>Chúng tôi áp dụng các biện pháp bảo mật hợp lý để bảo vệ thông tin cá nhân của bạn. Tuy nhiên, không có phương thức truyền dữ liệu qua internet nào là hoàn toàn an toàn.</p>
+
+                <h5>4. Chia sẻ thông tin</h5>
+                <p>Chúng tôi không bán, trao đổi hoặc chuyển giao thông tin cá nhân của bạn cho bên thứ ba mà không có sự đồng ý của bạn, trừ khi cần thiết để cung cấp dịch vụ hoặc tuân thủ yêu cầu pháp lý.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#togglePassword').click(function() {
+            const passwordField = $('#password');
+            const passwordFieldType = passwordField.attr('type');
+            const toggleIcon = $(this).find('i');
+
+            if (passwordFieldType === 'password') {
+                passwordField.attr('type', 'text');
+                toggleIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                passwordField.attr('type', 'password');
+                toggleIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+
+        $('#confirm_password').on('keyup', function() {
+            const password = $('#password').val();
+            const confirmPassword = $(this).val();
+
+            if (password === confirmPassword) {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            } else {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+            }
+        });
+    });
+</script>
+{% endblock %}
