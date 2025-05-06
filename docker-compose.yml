@@ -14,6 +14,7 @@ services:
     depends_on:
       - db
       - mqtt
+      - minio
     ports:
       - "${WEB_EXPORT:-9998}:8000"
     networks:
@@ -47,6 +48,48 @@ services:
     networks:
       - parking_network
 
+  minio:
+    image: minio/minio:latest
+    container_name: parking_minio
+    restart: always
+    volumes:
+      - minio_data:/data
+    env_file:
+      - ./.env
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY:-minioadmin}
+    ports:
+      - "${MINIO_EXPORT:-9997}:9000"
+      - "${MINIO_CONSOLE_EXPORT:-9996}:9001"
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - parking_network
+
+  minio-create-buckets:
+    image: minio/mc
+    container_name: minio_setup
+    depends_on:
+      - minio
+    env_file:
+      - ./.env
+    entrypoint: >
+      /bin/sh -c "
+      until (mc config host add minio http://minio:9000 ${MINIO_ACCESS_KEY:-minioadmin} ${MINIO_SECRET_KEY:-minioadmin}) do echo 'Đang đợi MinIO khởi động...' && sleep 1; done;
+      mc mb --ignore-existing minio/parking-avatars;
+      mc mb --ignore-existing minio/parking-vehicles;
+      mc policy set public minio/parking-avatars;
+      mc policy set public minio/parking-vehicles;
+      exit 0;
+      "
+    networks:
+      - parking_network
+
 networks:
   parking_network:
     driver: bridge
@@ -57,3 +100,4 @@ volumes:
   media_volume:
   mqtt_data:
   mqtt_log:
+  minio_data:
